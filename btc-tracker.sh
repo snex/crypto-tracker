@@ -19,10 +19,12 @@ Hunt for a Bitcoin block hash / transaction / address based on a partial match
 
 -m, -match-type,	--match-type	Type of match to look for
 					Possible values are "any", "start", "end"
+					This flag is ignored if target type is "amount"
 					Default is "any"
 
 -p, -type,		--type		The type of target to hunt for
-					Possible values are "hash", "txid", "address"
+					Possible values are "hash", "txid", "address", "amount"
+					Amount matches are exact matches
 					Default is "hash"
 
 -t, -target,		--target	The target string to hunt for, required
@@ -46,10 +48,10 @@ exit 0
 }
 
 checkType() {
-	if [[ "$targettype" =~ ^(hash|txid|address)$ ]]; then
+	if [[ "$targettype" =~ ^(hash|txid|address|amount)$ ]]; then
 		return 0
 	else
-		echo 'Type must be "hash", "txid", or "address".'
+		echo 'Type must be "hash", "txid", "address", or "amount".'
 		exit 1
 	fi
 }
@@ -233,6 +235,24 @@ for ((i=$height; i>=1; i--)); do
 				esac
 				if [[ $match -eq 1 ]]; then
 					echo "Found address matching $target at height $i in transaction ID $TXID!"
+					exit 0
+				fi
+			done
+		done
+	elif [[ $targettype == "amount" ]]; then
+		TXIDS=`$btccmd getblock $BLKHSH | jq -r ".tx[]"`
+
+		for TXID in $TXIDS; do
+			logger "-- Checking txid $TXID at height $i"
+			AMOUNTS=`$btccmd getrawtransaction $TXID true $BLKHSH | jq -r ".vout | map({value})[].value"`
+
+			for AMOUNT in $AMOUNTS; do
+				logger "---- Checking amount $AMOUNT"
+
+				AMOUNT=`sed -E 's/([+-]?[0-9.]+)[eE]\+?(-?)([0-9]+)/(\1*10^\2\3)/g' <<<"$AMOUNT" | bc -l`
+
+				if [[ "`echo "$AMOUNT==$target" | bc -l`" -eq 1 ]]; then
+					echo "Found amount matching $target at height $i in transaction ID $TXID!"
 					exit 0
 				fi
 			done
