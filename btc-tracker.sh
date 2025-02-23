@@ -170,7 +170,7 @@ fi
 export btccmd="$btcbin $btcopts"
 
 if [ -z "$height" ]; then
-  export height=`$btccmd getblockchaininfo | jq ".blocks"`
+	export height=`$btccmd getblockchaininfo | jq ".blocks"`
 fi
 
 for ((i=$height; i>=1; i--)); do

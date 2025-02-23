@@ -170,7 +170,7 @@ fi
 export bchcmd="$bchbin $bchopts"
 
 if [ -z "$height" ]; then
-  export height=`$bchcmd getblockchaininfo | jq ".blocks"`
+	export height=`$bchcmd getblockchaininfo | jq ".blocks"`
 fi
 
 for ((i=$height; i>=1; i--)); do
