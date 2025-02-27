@@ -167,6 +167,10 @@ if [ -n "$rpcpass" ]; then
 	export bchopts="$bchopts -rpcpassword=$rpcpass"
 fi
 
+if [ -n "$rpccookie" ]; then
+	export bchopts="$bchopts -rpccookiefile=$rpccookie"
+fi
+
 export bchcmd="$bchbin $bchopts"
 
 if [ -z "$height" ]; then

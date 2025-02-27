@@ -169,6 +169,10 @@ if [ -n "$rpcpass" ]; then
 	export btcopts="$btcopts -rpcpassword=$rpcpass"
 fi
 
+if [ -n "$rpccookie" ]; then
+	export btcopts="$bchopts -rpccookiefile=$rpccookie"
+fi
+
 export btccmd="$btcbin $btcopts"
 
 if [ -z "$height" ]; then
